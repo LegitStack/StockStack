@@ -1,0 +1,18 @@
+<%= @record.firstname + " " + @record.lastname + "," %>
+
+This is an automated message to let you know your loan is making progress! 
+
+
+  <% if @changetype == "Progress" %>
+    <% oldname = @change %>
+    <% newname = "something new" %>
+  <% else %>
+    <% oldname = @change %>
+    <% if oldname == "'Done'" %>
+      <% newname = "'Not Done'" %>
+    <% else %>
+      <% newname = "'Done'" %>
+    <% end %>
+  <% end %>
+
+  <%= gettextname @efrom %> changed <%= @changetype %> from <%= oldname %> to <%= newname %><% temptime = Time.now-6.hours %><%= temptime.strftime(" on %m/%d/%Y") %> <%= temptime.strftime(" at %l:%M%p")%>

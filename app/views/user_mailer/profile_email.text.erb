@@ -1,0 +1,27 @@
+	<% if @changetype == "Progress" %>
+    <% oldname = @change %>
+    <% newname = "something new" %>
+  <% elsif @changetype == "Assigned Processor" %>
+    <% oldname = gettextname @change %>
+    <% if @change == @eto.id %>
+      <% newname = "someone else" %>
+    <% else %>
+      <% newname = "You" %>
+    <% end %>
+  <% elsif @changetype == "Assigned Loan Officer" %>
+    <% oldname = gettextname @change %>
+    <% if @change == @eto.id %>
+      <% newname = "someone else" %>
+    <% else %>
+      <% newname = "You" %>
+    <% end %>
+  <% else %>
+    <% oldname = @change %>
+    <% if oldname == "'Done'" %>
+      <% newname = "'Not Done'" %>
+    <% else %>
+      <% newname = "'Done'" %>
+    <% end %>
+  <% end %>
+
+  <%= gettextname @efrom %> changed <%= @record.firstname + " " + @record.lastname + "'s" %> <%= @changetype %> from <%= oldname %> to <%= newname %><% temptime = Time.now-6.hours %><%= temptime.strftime(" on %m/%d/%Y") %><%= temptime.strftime(" at %l:%M%p")%>.

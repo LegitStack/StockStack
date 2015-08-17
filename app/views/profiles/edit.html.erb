@@ -1,0 +1,26 @@
+<div onClick='<%=@dosomethingspecial%>'>
+  <div class="row">
+    <div class="col-xs-4 col-sm-4" >
+    	<h1><%= link_to "My Profile", @profile %></h1>
+    </div>
+    <div class="col-xs-4 col-sm-4">
+        <br />
+        <center>
+    	   <%= link_to gravatar_for(@profile, 48), "http://en.gravatar.com/emails/", :target => "_blank" %>
+        </center>
+    </div>
+    <div class="col-xs-4 col-sm-4">
+    <br />
+			<%= link_to "Change Login Information", edit_user_registration_path, :class=> "btn btn-info btn-lg pull-right" %>
+    </div>
+  </div>
+  <% if current_user.profile.title == "master" %>
+    <%= link_to "Reset Password", {:controller => :profiles, :action => :resetpassword, :id => @profile.id}, :method => 'post', :class =>"btn btn-lg btn-default" %>
+    <br />
+
+  <% end %>
+
+
+<%= render 'form' %>
+
+</div>
