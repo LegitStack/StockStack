@@ -35,4 +35,13 @@ class HomeController < ApplicationController
     end
   end
 
+  def long
+
+  end
+
+  def short
+
+  end
+
+
 end

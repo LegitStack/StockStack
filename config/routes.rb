@@ -1,38 +1,5 @@
 Rails.application.routes.draw do
 
-  resources :messgs do
-    collection { post :import }
-  end
-
-  resources :phasesteps do
-    collection { post :import }
-  end
-
-  resources :steps do
-    collection { post :import }
-  end
-
-  resources :phases do
-    collection { post :import }
-  end
-
-  resources :progressions do
-    resources :messgs
-    collection { post :import }
-  end
-
-  resources :notifications do
-    collection { post :import }
-  end
-
-  get 'notes/create'
-
-  get 'notes/destroy'
-
-  resources :records do
-    resources :notes
-    collection { post :import }
-  end
 
   #get 'guests/invite'
 
@@ -51,21 +18,18 @@ Rails.application.routes.draw do
     collection { post :import }
   end
 
-  resources :notes do
-    collection { post :import }
-  end
 
   #root records_path && '?direction=asc&sort=firstname'
 
   #root 'records#index\?direction=asc&sort=firstname'
 
-  get "records_addstep" => "records#addstep"
+  #get "home_short" => "home#short", :via => :post
 
-  get "records_removestep" => "records#removestep"
+  #get "home_long" => "home#long", :via => :post
 
-  get "inactive_content" => "records#inactive_content"
-
-  get "messgs_sendcustom" => "messgs#sendcustom"
+  match 'home/short' => "act#short", :via => :post
+  #match 'home_short' => "act#short", :via => :post
+#http://localhost:3000/home_short?id=1
   #get 'records/inactive'
 
   root 'home#index'

@@ -84,6 +84,17 @@ google.setOnLoadCallback(drawChart);
 <!--  </head>
   <body>-->
     <div id="chart_div" style="width: 900px; height: 500px;"></div>
+    <div class="btn btn-default btn-lg btn-primary">
+    <%=  label "", "Short", {"onclick"=>"playforward()"} %>
+
+
 <!--  </body>
 </html>
 -->
+
+<script>
+function playforward(o) {
+    o.style.height = "1px";
+    o.style.height = (25+o.scrollHeight)+"px";
+}
+</script>
