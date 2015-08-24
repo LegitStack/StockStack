@@ -11,7 +11,7 @@ Rails.application.routes.draw do
   post "profiles_resetpassword" => "profiles#resetpassword"
 
   resources :profiles do
-    collection { post :import }
+    collection { post :import}
   end
 
   resources :home do
@@ -35,6 +35,8 @@ Rails.application.routes.draw do
   root 'home#index'
 
   get "orders"=>'home#orders'
+  match "long"=>'home#long', :via => :post
+  get "long"=>'home#long'
     #get 'events/create'
 
   #get 'events/destroy'

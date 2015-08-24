@@ -36,7 +36,7 @@ class HomeController < ApplicationController
   end
 
   def long
-    format.json { render json: @profile.errors, status: :unprocessable_entity }
+
   end
 
   def short
@@ -50,6 +50,5 @@ class HomeController < ApplicationController
     #end
 
   end
-
 
 end
