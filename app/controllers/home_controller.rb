@@ -36,10 +36,18 @@ class HomeController < ApplicationController
   end
 
   def long
-
+    format.json { render json: @profile.errors, status: :unprocessable_entity }
   end
 
   def short
+
+  end
+
+  def orders
+    @profiles = Profile.all
+    #respond_to do |format|
+      render json: @profiles
+    #end
 
   end
 

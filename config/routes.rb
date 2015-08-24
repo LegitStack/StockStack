@@ -34,8 +34,8 @@ Rails.application.routes.draw do
 
   root 'home#index'
 
-
-  #get 'events/create'
+  get "orders"=>'home#orders'
+    #get 'events/create'
 
   #get 'events/destroy'
   #get 'event/show'
