@@ -18,6 +18,7 @@ Rails.application.routes.draw do
     collection { post :import }
   end
 
+  post "orders"            => "home#orders2"
 
   #root records_path && '?direction=asc&sort=firstname'
 

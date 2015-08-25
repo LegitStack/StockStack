@@ -59,6 +59,8 @@ gem 'jquery-datatables-rails', '~> 3.1.1'
 
 gem 'rest-client'
 
+#gem 'jquery-form-rails', '~> 1.0.1'
+
 #group :assets do
 #	gem 'jquery-ui-rails'
 #end

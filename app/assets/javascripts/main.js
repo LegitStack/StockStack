@@ -24,14 +24,12 @@ $(function (){
     $.ajax({
       type: 'POST',
       url: '/orders',
-      data: $name.val(),//order,
+      data: order,//order,
       success: function(profiles) {
-        $.each(profiles, function(i, profile) {
-          $profiles.append('<li>Name: ' + profile.name + '</li>');
-        });
+        $profiles.append('<li>Name: ' + profiles.name + '</li>');
       },
       error: function() {
-        alert('error saving order');
+        alert('error saving order'+order.name);
       }
     });
     //$.ajax({

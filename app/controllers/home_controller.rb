@@ -1,5 +1,6 @@
 class HomeController < ApplicationController
-  before_action :authenticate_user!
+  #before_action :authenticate_user!
+  skip_before_filter  :verify_authenticity_token
  require 'csv'
   def index
 #   @groups = Group.all
@@ -50,5 +51,12 @@ class HomeController < ApplicationController
     #end
 
   end
+  def orders2
+    @test = Profile.new(:name => params[:name])
+    @test.save
+    #respond_to do |format|
+      render json: @test
+    #end
 
+  end
 end
