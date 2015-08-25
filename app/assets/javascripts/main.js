@@ -23,10 +23,12 @@ $(function (){
     };
     $.ajax({
       type: 'POST',
-      url: '/long',
+      url: '/orders',
       data: $name.val(),//order,
-      success: function(newOrder) {
-        $profiles.append('<li>Name: ' + NewOrder.name + '</li>');
+      success: function(profiles) {
+        $.each(profiles, function(i, profile) {
+          $profiles.append('<li>Name: ' + profile.name + '</li>');
+        });
       },
       error: function() {
         alert('error saving order');
