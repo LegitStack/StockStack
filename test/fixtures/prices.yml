@@ -1,0 +1,19 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  ticker: MyString
+  when: 2015-08-25 12:00:40
+  high: 1.5
+  low: 1.5
+  open: 1.5
+  close: 1.5
+  other: MyText
+
+two:
+  ticker: MyString
+  when: 2015-08-25 12:00:40
+  high: 1.5
+  low: 1.5
+  open: 1.5
+  close: 1.5
+  other: MyText

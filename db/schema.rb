@@ -11,7 +11,19 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140924152757) do
+ActiveRecord::Schema.define(version: 20150825180040) do
+
+  create_table "prices", force: true do |t|
+    t.string   "ticker"
+    t.datetime "when"
+    t.float    "high"
+    t.float    "low"
+    t.float    "open"
+    t.float    "close"
+    t.text     "other"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
 
   create_table "profiles", force: true do |t|
     t.string   "name"
