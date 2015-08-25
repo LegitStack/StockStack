@@ -22,7 +22,6 @@ Rails.application.routes.draw do
     collection { post :import }
   end
 
-  post "orders"            => "home#orders2"
 
   #root records_path && '?direction=asc&sort=firstname'
 
@@ -32,16 +31,26 @@ Rails.application.routes.draw do
 
   #get "home_long" => "home#long", :via => :post
 
-  match 'home/short' => "act#short", :via => :post
+  #match 'home/short' => "act#short", :via => :post
   #match 'home_short' => "act#short", :via => :post
 #http://localhost:3000/home_short?id=1
   #get 'records/inactive'
 
   root 'home#index'
 
-  get "orders"=>'home#orders'
-  match "long"=>'home#long', :via => :post
-  get "long"=>'home#long'
+  get "orders"            =>'act#orders'
+  post "orders"           => 'act#orders2'
+
+
+
+
+  #match "long"=>'act#long', :via => :post
+  #get "long"=>'act#long'
+
+
+
+
+
     #get 'events/create'
 
   #get 'events/destroy'

@@ -1,24 +1,14 @@
 class HomeController < ApplicationController
-  #before_action :authenticate_user!
-  skip_before_filter  :verify_authenticity_token
+  before_action :authenticate_user!
+  #skip_before_filter  :verify_authenticity_token
  require 'csv'
   def index
 #   @groups = Group.all
     @profiles = Profile.all
 
-		if current_user.profile.title == "admin" or current_user.profile.title == "master"
-    elsif current_user.profile.title == "processor"
-    elsif current_user.profile.title == "realtor"
-    elsif current_user.profile.title == "marketer"
-    elsif current_user.profile.title == "escrow officer"
-    else
-    end
-
     @listofcolors = { 0=> "default", 1=> "danger", 2=> "warning", 3=> "success", 4=> "info", 5=> "active", 6=> "active"}
 
-    if current_user.profile.title == "master"
-      @allusers = User.all
-    end
+    @allusers = User.all
 
     respond_to do |format|
       format.html
