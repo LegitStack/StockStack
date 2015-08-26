@@ -19,24 +19,24 @@ $(function (){
     }
   });
 
-  $('#add-order').on('click',function(){
-    var order = {
-      name: $name.val(),
-      id: $last_id.val(),
-    };
-    $.ajax({
-      type: 'POST',
-      url: '/orders',
-      data: order,//order,
-      success: function(prices) {
-        $prices.append('<li>Name: ' + prices.ticker + '</li>');
-        $('#last_id').val(prices.id);
-        $('#name').val(prices.ticker);
-      },
-      error: function() {
-        alert('error saving order'+order.id);
-      }
-    });
+  //$('#add-order').on('click',function(){
+  //  var order = {
+  //    name: $name.val(),
+  //    id: $last_id.val(),
+  //  };
+  //  $.ajax({
+  //    type: 'POST',
+  //    url: '/orders',
+  //    data: order,//order,
+  //    success: function(prices) {
+  //      $prices.append('<li>Name: ' + prices.ticker + '</li>');
+  //      $('#last_id').val(prices.id);
+  //      $('#name').val(prices.ticker);
+  //    },
+  //    error: function() {
+  //      alert('error saving order'+order.id);
+  //    }
+  //  });
     //$.ajax({
     //  type: 'GET',
     //  url: '/orders',
@@ -49,5 +49,5 @@ $(function (){
     //    alert('error loading profile')
     //  }
     //});
-  });
+  //});
 });

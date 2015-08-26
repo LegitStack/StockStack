@@ -58,26 +58,64 @@ button_to "Acknowledged", { :controller => 'messgs', :action => "sendcustom", :i
     <script type="text/javascript" src="https://www.google.com/jsapi"></script>
     <script type="text/javascript">
       google.load("visualization", "1", {packages:["corechart"]});
-google.setOnLoadCallback(drawChart);
-  function drawChart(days, lows, closes, opens, highs) {
-    var data = google.visualization.arrayToDataTable([
-      //[ days[0], lows[0], closes[0], opens[0], highs[0]],
-      //[ days[1], lows[1], closes[1], opens[1], highs[1]],
-      //[ days[2], lows[2], closes[2], opens[2], highs[2]],
-      ['Thu', 77, 77, 66, 50],
-      ['Fri', 68, 66, 22, 15]
-      // Treat first row as data as well.
-    ], true);
+      google.setOnLoadCallback(load_page_data);
 
-    var options = {
-      legend:'none'
-    };
+      function load_page_data(){
 
-    var chart = new google.visualization.CandlestickChart(document.getElementById('chart_div'));
+        var $prices = $('#orders');
+        var $name = $('#name');
+        var $last_id = $('#last_id');
+        var $chart_array = [['day', 1, 25, 50, 100]];
 
-    chart.draw(data, options);
-  }
-    </script>
+        $('#add-order').on('click',function(){
+          var order = {
+            name: $name.val(),
+            id: $last_id.val(),
+          };
+          $.ajax({
+            type: 'POST',
+            url: '/orders',
+            data: order,//order,
+            success: function(prices) {
+              if(prices) {
+                oldchart = $chart_array;
+                $chart_array.push(['day', prices.low, prices.close, prices.open, prices.high]);
+                chart_data = ([oldchart, $chart_array]);
+                //alert(chart_data);
+                drawChart($chart_array);
+              }
+              //$prices.append('<li>Name: ' + prices.ticker + '</li>');
+              $('#last_id').val(prices.id);
+              $('#name').val(prices.ticker);
+            },
+            error: function() {
+              alert('error saving order' + order.id);
+            }
+          });
+        });
+      }
+
+
+
+
+      function drawChart(chart_data) {
+        var data = google.visualization.arrayToDataTable(chart_data, true);
+          //[
+          //[ days[2], lows[2], closes[2], opens[2], highs[2]],
+          //['Thu', 50, 76, 66, 77],
+          //['Fri', 62, 66, 76, 80]
+          // Treat first row as data as well.
+        //], true);
+
+        var options = {
+          legend:'none'
+        };
+
+        var chart = new google.visualization.CandlestickChart(document.getElementById('chart_div'));
+
+        chart.draw(data, options);
+      }
+  </script>
 <!--  </head>
   <body>-->
     <div id="chart_div" style="width: 900px; height: 500px;"></div>
