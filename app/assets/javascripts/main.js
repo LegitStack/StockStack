@@ -1,23 +1,23 @@
 $(function (){
 
-  var $prices = $('#orders');
-  var $name = $('#name');
-  var $last_id = $('#last_id');
+//  var $prices = $('#orders');
+//  var $name = $('#name');
+//  var $last_id = $('#last_id');
 
-  $.ajax({
-    type: 'GET',
-    url: '/orders',
-    success: function(prices) {
-      $.each(prices, function(i, price) {
-        $prices.append('<li>Name: ' + price.ticker + '</li>');
-        $('#last_id').val(price.id);
-        $('#name').val(price.ticker);
-      });
-    },
-    error: function() {
-      alert('error loading prices')
-    }
-  });
+//  $.ajax({
+//    type: 'GET',
+//    url: '/orders',
+//    success: function(prices) {
+//      $.each(prices, function(i, price) {
+//        $prices.append('<li>Name: ' + price.ticker + '</li>');
+//        $('#last_id').val(price.id);
+//        $('#name').val(price.ticker);
+//      });
+//    },
+//    error: function() {
+//      alert('error loading prices')
+//    }
+//  });
 
   //$('#add-order').on('click',function(){
   //  var order = {

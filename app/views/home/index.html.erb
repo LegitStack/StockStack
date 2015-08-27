@@ -67,6 +67,29 @@ button_to "Acknowledged", { :controller => 'messgs', :action => "sendcustom", :i
         var $last_id = $('#last_id');
         var $chart_array = [['day', 1, 25, 50, 100]];
 
+        var $startingcounter = 0;
+
+        $.ajax({
+          type: 'GET',
+          url: '/orders',
+          success: function(prices) {
+            $.each(prices, function(i, price) {
+              if(price) {
+                $chart_array.push(['day', price.low, price.close, price.open, price.high]);
+                drawChart($chart_array);
+              }
+              $('#last_id').val(price.id);
+              $('#name').val(price.ticker);
+              //if ($startingcounter > 24)
+                //return false;
+            });
+          },
+          error: function() {
+            alert('error loading prices')
+          }
+        });
+
+
         $('#add-order').on('click',function(){
           var order = {
             name: $name.val(),
@@ -78,9 +101,9 @@ button_to "Acknowledged", { :controller => 'messgs', :action => "sendcustom", :i
             data: order,//order,
             success: function(prices) {
               if(prices) {
-                oldchart = $chart_array;
+                //oldchart = $chart_array;
                 $chart_array.push(['day', prices.low, prices.close, prices.open, prices.high]);
-                chart_data = ([oldchart, $chart_array]);
+                //chart_data = ([oldchart, $chart_array]);
                 //alert(chart_data);
                 drawChart($chart_array);
               }
