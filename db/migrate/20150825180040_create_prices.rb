@@ -7,7 +7,7 @@ class CreatePrices < ActiveRecord::Migration
       t.float :low
       t.float :open
       t.float :close
-      t.text :other
+      t.integer :price_id
 
       t.timestamps
     end

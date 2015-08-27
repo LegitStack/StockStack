@@ -20,7 +20,7 @@ ActiveRecord::Schema.define(version: 20150825180040) do
     t.float    "low"
     t.float    "open"
     t.float    "close"
-    t.text     "other"
+    t.integer  "price_id"
     t.datetime "created_at"
     t.datetime "updated_at"
   end

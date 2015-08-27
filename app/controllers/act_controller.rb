@@ -10,6 +10,7 @@ class ActController < ApplicationController
   end
 
   def orders
+
     @price = Price.all
     #respond_to do |format|
       render json: @price
@@ -23,7 +24,7 @@ class ActController < ApplicationController
     else
       @open = rand(1..100)
     end
-    
+
     @high = rand(@open..100.0)
     @close = rand(2.0..@high)
     if @open < @close
