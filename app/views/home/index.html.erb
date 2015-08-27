@@ -60,12 +60,30 @@ button_to "Acknowledged", { :controller => 'messgs', :action => "sendcustom", :i
       google.load("visualization", "1", {packages:["corechart"]});
       google.setOnLoadCallback(load_page_data);
 
+	  JORDANS_APP = {};
+	  
+	  JORDANS_APP.drawNext = function() {
+	  };
+	  
+	  JORDANS_APP.drawSegment = function(chartData, index) { //gets data to draw
+		if(index < chartData.length){
+			setTimeout( function(){
+				drawChart(chartData.slice(0,index));
+				index++;
+				JORDANS_APP.drawSegment(chartData, index);
+			}, 80);				
+		}
+	  };
+
+
       function load_page_data(){
 
         var $prices = $('#orders');
         var $name = $('#name');
         var $last_id = $('#last_id');
         var $chart_array = [['day', 1, 25, 50, 100]];
+		
+		var $containdata = [];
 
         var $startingcounter = 0;
 
@@ -73,6 +91,10 @@ button_to "Acknowledged", { :controller => 'messgs', :action => "sendcustom", :i
           type: 'GET',
           url: '/orders',
           success: function(prices) {
+		  //put months data in containdata
+		  $containdata.psuh(prices); //.slice = takes index 1 to 2 and return it as a new array // or /shift
+
+
             $.each(prices, function(i, price) {
               if(price) {
                 $chart_array.push(['day', price.low, price.close, price.open, price.high]);
@@ -88,9 +110,8 @@ button_to "Acknowledged", { :controller => 'messgs', :action => "sendcustom", :i
             alert('error loading prices')
           }
         });
-
-
-        $('#add-order').on('click',function(){
+		
+		$('#add-order').on('click',function(){
           var order = {
             name: $name.val(),
             id: $last_id.val(),
