@@ -87,7 +87,8 @@ button_to "Acknowledged", { :controller => 'messgs', :action => "sendcustom", :i
               }
             });
 
-            while($x < 4){
+            //if not in a buy chunck 50 otherwise chunck by win or loss
+            while($x < 50){
               //alert($x);
               if(0 <= $containdata.length) {
                 $tempdata.push($containdata.shift());
@@ -95,6 +96,34 @@ button_to "Acknowledged", { :controller => 'messgs', :action => "sendcustom", :i
               //alert($tempdata[$x].low);
               $x++;
             }
+            //algo to win or lose:
+              //I have:
+                //current object (all I care aboue it close)
+                //buy or sell (irrelevant)
+                //Previous stop point object (all I care about is the high and low)
+                //interum high, interum low (highest high and lowest low since last event)
+              //I'm looking for
+                //trend reversals
+                //breakouts
+              //criteria:
+                //must close outside of interum high's or lows
+                //must close higher that previous event's high (if its a high candidate), or lower than previous events low (if its a low candidate).
+              //so, maybe we do this sudo code:
+                //If candidate's close is lower than previous event's low and candidate closes below interum low then
+                  //this is a new low
+                //else if candidate's close is higher than previous event's high and candidate closes above interum high then
+                  //this is a new high
+                //else if there is no preivous event then
+                  //continue to load until you hit 50
+                //endif
+                //PS might also need to be outisde of a minimum range
+                //PS might also include the ability to set stop loss and take profits so yeah.
+
+            //other thing I have to do is figure out how to remove stuff from the running screen so I never have more than 50 Candlesticks in it at a time.
+
+            //after I do all that I have to figure out how to make it so it'll calculate the score upon every stop.
+
+            //Then I'm done with MVP
 
             $.each($tempdata, function(i, price) {
               if(price) {
