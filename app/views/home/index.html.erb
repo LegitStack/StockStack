@@ -23,7 +23,7 @@ button_to "Acknowledged", { :controller => 'messgs', :action => "sendcustom", :i
 
 -->
 
-
+<p>My Money: <input type="text" id="mymoney"></p>
 <!--<html>
   <head>-->
     <script type="text/javascript" src="https://www.google.com/jsapi"></script>
@@ -53,20 +53,36 @@ button_to "Acknowledged", { :controller => 'messgs', :action => "sendcustom", :i
         return $chart_array;
   	  };
 
+
+
+
   	  JORDANS_APP.drawSegment = function(chartData, index) { //gets data to draw
-  		if(index < chartData.length+1){
-  			setTimeout( function(){
-  				drawChart(chartData.slice(0,index));
-  				index++;
-  				JORDANS_APP.drawSegment(chartData, index);
-  			}, 10);
-  		}
-  	  };
+        $growchart = [];
+        if(index < chartData.length+1){
+    			setTimeout( function(){
+            //firstchart = chartData.slice(0,index);
+            //secondchart = chartData.slice(0,index)
+            $.each(chartData, function(i, p){
+              if(i<= index){
+                $growchart.push(p);
+              }
+              else {
+                $growchart.push(chartData[index]);
+              }
+            });
+            //alert()
+            drawChart($growchart);//chartData.slice(0,index));
+    				index++;
+    				JORDANS_APP.drawSegment(chartData, index);
+    			}, 1);
+    		}
+      };
 
 
       function load_page_data(){
 
         var $prices = $('#orders');
+        var $mymoney = $('#mymoney');
         var $name = "";//$('#name');
         var $last_id = 0;//$('#last_id');
         var $chart_array = [];
@@ -80,9 +96,9 @@ button_to "Acknowledged", { :controller => 'messgs', :action => "sendcustom", :i
         var $interumlow = 10000.0;
         var $interumhigh = -10000.0;
 
-        var $need = 20;
+        var $need = 10;
 
-        var $chartlength = 20;
+        var $chartlength = 30;//30
 
         $.ajax({
           type: 'GET',
@@ -113,9 +129,9 @@ button_to "Acknowledged", { :controller => 'messgs', :action => "sendcustom", :i
                 $name = price.ticker;
               }
             });
-          JORDANS_APP.drawSegment($chart_array, 0);
-          $tempdata = [];
-
+            JORDANS_APP.drawSegment($chart_array, 0);
+            $tempdata = [];
+            $('#mymoney').val(1000);
           },
           error: function() {
             alert('error loading prices')
@@ -175,7 +191,7 @@ button_to "Acknowledged", { :controller => 'messgs', :action => "sendcustom", :i
                     //alert('Getting more data!');
                   }
                 }
-                //$extras = $chart_array.length - $tempdata.length;
+                $extras = ($chart_array.length - $tempdata.length);
                 if($tempdata.length > 0){
                   $.each($tempdata, function(i, price) {
                     if(price) {
@@ -189,10 +205,22 @@ button_to "Acknowledged", { :controller => 'messgs', :action => "sendcustom", :i
                   }
                   //$oldchart = $chart_array.slice(0, $extras);
                   //$newchart = $chart_array.slice($extras, $chart_array.length);
-                  drawChart($chart_array);
+                  //drawChart($chart_array);
                   //JORDANS_APP.drawSegment($newchart, 0);
-                  //JORDANS_APP.drawSegment($chart_array, 0);
+                  JORDANS_APP.drawSegment($chart_array, $extras);
                   $tempdata = [];
+                  if($oldclose > $prevevent.close && $shortme == true){
+                    $('#mymoney').val($('#mymoney').val() -  $prevevent.close);
+                  }
+                  else if($oldclose > $prevevent.close && $shortme == false){
+                    $('#mymoney').val($('#mymoney').val() -  $prevevent.close);
+                  }
+                  else if($oldclose < $prevevent.close && $shortme == true){
+                    $('#mymoney').val($('#mymoney').val() -  $prevevent.close);
+                  }
+                  else if($oldclose < $prevevent.close && $shortme == false){
+                    $('#mymoney').val($('#mymoney').val() -  $prevevent.close);
+                  }
                 }
               },
               success: function(prices) {
@@ -242,7 +270,7 @@ button_to "Acknowledged", { :controller => 'messgs', :action => "sendcustom", :i
                     alert('you win? No more stock data!');
                   }
                 }
-
+                $extras = ($chart_array.length - $tempdata.length);
                 if($tempdata.length > 0){
                   $.each($tempdata, function(i, price) {
                     if(price) {
@@ -256,7 +284,8 @@ button_to "Acknowledged", { :controller => 'messgs', :action => "sendcustom", :i
                     tempvar = $chart_array.shift();
                   }
 
-                  drawChart($chart_array);
+                  //drawChart($chart_array);
+                  JORDANS_APP.drawSegment($chart_array, $extras);
                   $tempdata = [];
                 }
               },
