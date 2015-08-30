@@ -17,7 +17,7 @@ def self.import(file)
   CSV.foreach(file.path, headers: true) do |row|
     record = find_by_id(row["id"]) || new
     parameters = ActionController::Parameters.new(row.to_hash)
-    record.update(parameters.permit(:ticker, :when, :high, :low, :open, :close, :other, :updated_at, :created_at))
+    record.update(parameters.permit(:id, :ticker, :when, :high, :low, :open, :close, :other, :updated_at, :created_at))
     record.save!
   end
 end

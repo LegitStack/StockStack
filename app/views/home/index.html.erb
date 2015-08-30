@@ -54,7 +54,7 @@ button_to "Acknowledged", { :controller => 'messgs', :action => "sendcustom", :i
   	  };
 
   	  JORDANS_APP.drawSegment = function(chartData, index) { //gets data to draw
-  		if(index < chartData.length){
+  		if(index < chartData.length+1){
   			setTimeout( function(){
   				drawChart(chartData.slice(0,index));
   				index++;
@@ -80,8 +80,9 @@ button_to "Acknowledged", { :controller => 'messgs', :action => "sendcustom", :i
         var $interumlow = 10000.0;
         var $interumhigh = -10000.0;
 
-        var $need = 0;
+        var $need = 20;
 
+        var $chartlength = 20;
 
         $.ajax({
           type: 'GET',
@@ -93,8 +94,7 @@ button_to "Acknowledged", { :controller => 'messgs', :action => "sendcustom", :i
                 $containdata.push(price); //.slice = takes index 1 to 2 and return it as a new array // or /shift
               }
             });
-
-            while($x < 5){
+            while($x < $chartlength){
               if(0 < $containdata.length) {
                 //make temp array
                 $tempdata.push($containdata.shift());
@@ -103,10 +103,9 @@ button_to "Acknowledged", { :controller => 'messgs', :action => "sendcustom", :i
             }
 
             //once you get to the end, assign that to your prevevent
-            $interumlow = $tempdata[$tempdata.length-1];
-            $interumhigh = $tempdata[$tempdata.length-1];
+            $interumlow = $tempdata[$tempdata.length-1].low;
+            $interumhigh = $tempdata[$tempdata.length-1].high;
             $prevevent = $tempdata[$tempdata.length-1];
-
             $.each($tempdata, function(i, price) {
               if(price) {
                 $chart_array.push(['day', price.low, price.close, price.open, price.high]);
@@ -114,8 +113,9 @@ button_to "Acknowledged", { :controller => 'messgs', :action => "sendcustom", :i
                 $name = price.ticker;
               }
             });
-
           JORDANS_APP.drawSegment($chart_array, 0);
+          $tempdata = [];
+
           },
           error: function() {
             alert('error loading prices')
@@ -133,12 +133,76 @@ button_to "Acknowledged", { :controller => 'messgs', :action => "sendcustom", :i
               type: 'POST',
               url: '/orders',
               data: order,//order,
+              beforeSend: function (xhr) {
+                $y = true;
+                while($y){
+                  //if ($containdata.length <= 77 && $containdata.length >= 1 ){
+                  //alert("length: " + $containdata.length + " close: " + $containdata[0].close + " low: " + $prevevent.low + " inlow: " + $interumlow + " high: " + $prevevent.high + " inhigh: " + $interumhigh);
+                  //}
+                  if(0 < $containdata.length) {
+                    //If candidate's close is lower than previous event's low and candidate closes below interum low then
+                    if ($containdata[0].close < $prevevent.low && $containdata[0].close < $interumlow){
+                      //this is a new low
+                      $interumlow = $containdata[0].low;
+                      $interumhigh = $containdata[0].high;
+                      $prevevent = $containdata[0];
+                      $y = false;
+                      xhr.abort();
+                    } //else if candidate's close is higher than previous event's high and candidate closes above interum high then
+                    else if ($containdata[0].close > $prevevent.high && $containdata[0].close > $interumhigh){
+                      //this is a new high
+                      $interumlow = $containdata[0].low;
+                      $interumhigh = $containdata[0].high;
+                      $prevevent = $containdata[0];
+                      $y = false;
+                      xhr.abort();
+                    } //endif
+
+                    //check for interumlow, and interum high
+                    if($containdata[0].low < $interumlow){
+                      $interumlow = $containdata[0].low;
+                    }
+                    if($containdata[0].high > $interumhigh){
+                        $interumhigh = $containdata[0].high;
+                    }
+                    //make temp array
+                    $tempdata.push($containdata.shift());
+                  }
+                  else{
+                    //ajax call to get more.
+                    $y = false;
+                    //alert($containdata.length);
+                    //alert('Getting more data!');
+                  }
+                }
+                //$extras = $chart_array.length - $tempdata.length;
+                if($tempdata.length > 0){
+                  $.each($tempdata, function(i, price) {
+                    if(price) {
+                      $chart_array.push(['day', price.low, price.close, price.open, price.high]);
+                      $last_id = price.id;
+                      $name = price.ticker;
+                    }
+                  });
+                  while($chart_array.length > $chartlength){
+                    tempvar = $chart_array.shift();
+                  }
+                  //$oldchart = $chart_array.slice(0, $extras);
+                  //$newchart = $chart_array.slice($extras, $chart_array.length);
+                  drawChart($chart_array);
+                  //JORDANS_APP.drawSegment($newchart, 0);
+                  //JORDANS_APP.drawSegment($chart_array, 0);
+                  $tempdata = [];
+                }
+              },
               success: function(prices) {
                 $.each(prices, function(i, price) {
                   if(price) {
                     $containdata.push(price); //.slice = takes index 1 to 2 and return it as a new array // or /shift
                   }
                 });
+                //alert($containdata.length);
+                //alert(order.id);
 
                 $y = true;
                 while($y){
@@ -179,19 +243,24 @@ button_to "Acknowledged", { :controller => 'messgs', :action => "sendcustom", :i
                   }
                 }
 
-                $.each($tempdata, function(i, price) {
-                  if(price) {
-                    $chart_array.push(['day', price.low, price.close, price.open, price.high]);
-                    $last_id = price.id;
-                    $name = price.ticker;
+                if($tempdata.length > 0){
+                  $.each($tempdata, function(i, price) {
+                    if(price) {
+                      $chart_array.push(['day', price.low, price.close, price.open, price.high]);
+                      $last_id = price.id;
+                      //alert($last_id);
+                      $name = price.ticker;
+                    }
+                  });
+                  while($chart_array.length >$chartlength){
+                    tempvar = $chart_array.shift();
                   }
-                });
-                $last_id = prices.id;
-                $name = prices.ticker;
 
-                drawChart($chart_array);
-
+                  drawChart($chart_array);
+                  $tempdata = [];
+                }
               },
+
               error: function() {
                 alert('error saving order' + order.id);
               }
