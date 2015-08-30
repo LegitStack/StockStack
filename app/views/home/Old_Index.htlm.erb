@@ -92,25 +92,79 @@ button_to "Acknowledged", { :controller => 'messgs', :action => "sendcustom", :i
               }
             });
 
-            while($x < 50){
-              if(0 <= $containdata.length) {
-                //make temp array
-                $tempdata.push($containdata.shift());
-                //check for interumlow, and interum high
-                if($tempdata.length > 1){
-                  if($tempdata($tempdata.length-2).low < $interumlow){
-                    $interumlow = $tempdata($tempdata.length-2).low;
-                  }
-                  if($tempdata($tempdata.length-2).high > $interumhigh){
-                      $interumhigh = $tempdata($tempdata.length-2).high;
+            //if not in a buy chunck 50 otherwise chunck by win or loss
+
+            //algo to win or lose:
+              //I have:
+                //current object (all I care aboue it close)
+                //buy or sell (irrelevant)
+                //Previous stop point object (all I care about is the high and low)
+                //interum high, interum low (highest high and lowest low since last event)
+              //I'm looking for
+                //trend reversals
+                //breakouts
+              //criteria:
+                //must close outside of interum high's or lows
+                //must close higher that previous event's high (if its a high candidate), or lower than previous events low (if its a low candidate).
+              //so, maybe we do this sudo code:
+                //If candidate's close is lower than previous event's low and candidate closes below interum low then
+                  //this is a new low
+                //else if candidate's close is higher than previous event's high and candidate closes above interum high then
+                  //this is a new high
+                //else if there is no preivous event then
+                  //continue to load until you hit 50
+                //endif
+                //PS might also need to be outisde of a minimum range
+                //PS might also include the ability to set stop loss and take profits so yeah.
+
+            //other thing I have to do is figure out how to remove stuff from the running screen so I never have more than 50 Candlesticks in it at a time.
+
+            //after I do all that I have to figure out how to make it so it'll calculate the score upon every stop.
+
+            //Then I'm done with MVP
+
+      //      while($x < 50){
+      //        //alert($x);
+      //        if(0 <= $containdata.length) {
+      //          $tempdata.push($containdata.shift());
+      //        }
+      //        //alert($tempdata[$x].low);
+      //        $x++;
+      //      }
+
+            //if there is no preivous event then
+            //if !($prevevent){ //if $interumlow == 10000.0
+              //continue to load until you hit 50
+              while($x < 50){
+                //alert($x);
+                if(0 <= $containdata.length) {
+                  //make temp array
+                  $tempdata.push($containdata.shift());
+                  //check for interumlow, and interum high
+                  if($tempdata.length > 1){
+                    if($tempdata($tempdata.length-2).low < $interumlow){
+                      $interumlow = $tempdata($tempdata.length-2).low;
+                    }
+                    if($tempdata($tempdata.length-2).high > $interumhigh){
+                        $interumhigh = $tempdata($tempdata.length-2).high;
+                    }
                   }
                 }
+                $x++;
               }
-              $x++;
-            }
+              //once you get to the end, assign that to your prevevent
+              $prevevent = $tempdata($tempdata.length-1);
+            //} //If candidate's close is lower than previous event's low and candidate closes below interum low then
+            if ($conditionaldata[0].close < $prevevent.low && $conditionaldata[0].close < $interumlow){
+              //this is a new low
+            } //else if candidate's close is higher than previous event's high and candidate closes above interum high then
+            else if !($conditionaldata[0].close > $prevevent.high && $conditionaldata[0].close > $interumhigh){
+              //this is a new high
+            } //endif
 
-            //once you get to the end, assign that to your prevevent
-            $prevevent = $tempdata($tempdata.length-1);
+
+
+
 
             $.each($tempdata, function(i, price) {
               if(price) {
@@ -120,7 +174,18 @@ button_to "Acknowledged", { :controller => 'messgs', :action => "sendcustom", :i
               }
             });
 
-          JORDANS_APP.drawSegment($chart_array, 0);
+            drawChart($chart_array);
+
+//            $.each(prices, function(i, price) {
+//              if(price) {
+//                $chart_array.push(['day', price.low, price.close, price.open, price.high]);
+//                drawChart($chart_array);
+//              }
+//              $last_id = price.id;
+//              $name = price.ticker;
+              //if ($startingcounter > 24)
+                //return false;
+//            });
           },
           error: function() {
             alert('error loading prices')
@@ -137,61 +202,16 @@ button_to "Acknowledged", { :controller => 'messgs', :action => "sendcustom", :i
             url: '/orders',
             data: order,//order,
             success: function(prices) {
-              $.each(prices, function(i, price) {
-                if(price) {
-                  $containdata.push(price); //.slice = takes index 1 to 2 and return it as a new array // or /shift
-                }
-              });
-
-              $y = true;
-              while($y){
-                if(0 <= $containdata.length) {
-
-                  //If candidate's close is lower than previous event's low and candidate closes below interum low then
-                  if ($conditionaldata[0].close < $prevevent.low && $conditionaldata[0].close < $interumlow){
-                    //this is a new low
-                    $prevevent = $conditionaldata[0];
-                    $y = false;
-                  } //else if candidate's close is higher than previous event's high and candidate closes above interum high then
-                  else if !($conditionaldata[0].close > $prevevent.high && $conditionaldata[0].close > $interumhigh){
-                    //this is a new high
-                    $prevevent = $conditionaldata[0];
-                    $y = false;
-                  } //endif
-
-                  //make temp array
-                  $tempdata.push($containdata.shift());
-
-                  //check for interumlow, and interum high
-                  if($tempdata.length > 0){
-                    if($tempdata($tempdata.length-1).low < $interumlow){
-                      $interumlow = $tempdata($tempdata.length-1).low;
-                    }
-                    if($tempdata($tempdata.length-1).high > $interumhigh){
-                        $interumhigh = $tempdata($tempdata.length-1).high;
-                    }
-                  }
-
-                }
-                else(
-                  //ajax call to get more.
-                  $y = false;
-                  alert('you win? No more stock data!');
-                )
+              if(prices) {
+                //oldchart = $chart_array;
+                $chart_array.push(['day', prices.low, prices.close, prices.open, prices.high]);
+                //chart_data = ([oldchart, $chart_array]);
+                //alert(chart_data);
+                drawChart($chart_array);
               }
-
-              $.each($tempdata, function(i, price) {
-                if(price) {
-                  $chart_array.push(['day', price.low, price.close, price.open, price.high]);
-                  $last_id = price.id;
-                  $name = price.ticker;
-                }
-              });
-
+              //$prices.append('<li>Name: ' + prices.ticker + '</li>');
               $last_id = prices.id;
               $name = prices.ticker;
-
-              drawChart($chart_array);
             },
             error: function() {
               alert('error saving order' + order.id);
