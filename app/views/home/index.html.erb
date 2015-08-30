@@ -96,9 +96,13 @@ button_to "Acknowledged", { :controller => 'messgs', :action => "sendcustom", :i
         var $interumlow = 10000.0;
         var $interumhigh = -10000.0;
 
-        var $need = 10;
+        var $need = 500;
 
         var $chartlength = 30;//30
+
+        var $shortme = true;
+
+        var $oldclose = 0;
 
         $.ajax({
           type: 'GET',
@@ -138,7 +142,7 @@ button_to "Acknowledged", { :controller => 'messgs', :action => "sendcustom", :i
           }
         });
 
-		$('#add-order').on('click',function(){
+		$('#sell').on('click',function(){
           var order = {
             name: $name,
             id: $last_id,
@@ -150,6 +154,7 @@ button_to "Acknowledged", { :controller => 'messgs', :action => "sendcustom", :i
               url: '/orders',
               data: order,//order,
               beforeSend: function (xhr) {
+                $shortme = true;
                 $y = true;
                 while($y){
                   //if ($containdata.length <= 77 && $containdata.length >= 1 ){
@@ -159,6 +164,7 @@ button_to "Acknowledged", { :controller => 'messgs', :action => "sendcustom", :i
                     //If candidate's close is lower than previous event's low and candidate closes below interum low then
                     if ($containdata[0].close < $prevevent.low && $containdata[0].close < $interumlow){
                       //this is a new low
+                      $oldclose = $prevevent.close;
                       $interumlow = $containdata[0].low;
                       $interumhigh = $containdata[0].high;
                       $prevevent = $containdata[0];
@@ -167,6 +173,7 @@ button_to "Acknowledged", { :controller => 'messgs', :action => "sendcustom", :i
                     } //else if candidate's close is higher than previous event's high and candidate closes above interum high then
                     else if ($containdata[0].close > $prevevent.high && $containdata[0].close > $interumhigh){
                       //this is a new high
+                      $oldclose = $prevevent.close;
                       $interumlow = $containdata[0].low;
                       $interumhigh = $containdata[0].high;
                       $prevevent = $containdata[0];
@@ -210,7 +217,8 @@ button_to "Acknowledged", { :controller => 'messgs', :action => "sendcustom", :i
                   JORDANS_APP.drawSegment($chart_array, $extras);
                   $tempdata = [];
                   if($oldclose > $prevevent.close && $shortme == true){
-                    $('#mymoney').val($('#mymoney').val() -  $prevevent.close);
+                    alert($oldclose);
+                    $('#mymoney').val($('#mymoney').val() +  $prevevent.close);
                   }
                   else if($oldclose > $prevevent.close && $shortme == false){
                     $('#mymoney').val($('#mymoney').val() -  $prevevent.close);
@@ -219,7 +227,7 @@ button_to "Acknowledged", { :controller => 'messgs', :action => "sendcustom", :i
                     $('#mymoney').val($('#mymoney').val() -  $prevevent.close);
                   }
                   else if($oldclose < $prevevent.close && $shortme == false){
-                    $('#mymoney').val($('#mymoney').val() -  $prevevent.close);
+                    $('#mymoney').val($('#mymoney').val() +  $prevevent.close);
                   }
                 }
               },
@@ -239,6 +247,7 @@ button_to "Acknowledged", { :controller => 'messgs', :action => "sendcustom", :i
                     //If candidate's close is lower than previous event's low and candidate closes below interum low then
                     if ($containdata[0].close < $prevevent.low && $containdata[0].close < $interumlow){
                       //this is a new low
+                      $oldclose = $prevevent.close;
                       $interumlow = $containdata[0].low;
                       $interumhigh = $containdata[0].high;
                       $prevevent = $containdata[0];
@@ -246,6 +255,7 @@ button_to "Acknowledged", { :controller => 'messgs', :action => "sendcustom", :i
                     } //else if candidate's close is higher than previous event's high and candidate closes above interum high then
                     else if ($containdata[0].close > $prevevent.high && $containdata[0].close > $interumhigh){
                       //this is a new high
+                      $oldclose = $prevevent.close;
                       $interumlow = $containdata[0].low;
                       $interumhigh = $containdata[0].high;
                       $prevevent = $containdata[0];
@@ -287,6 +297,18 @@ button_to "Acknowledged", { :controller => 'messgs', :action => "sendcustom", :i
                   //drawChart($chart_array);
                   JORDANS_APP.drawSegment($chart_array, $extras);
                   $tempdata = [];
+                  if($oldclose > $prevevent.close && $shortme == true){
+                    $('#mymoney').val($('#mymoney').val() +  $prevevent.close);
+                  }
+                  else if($oldclose > $prevevent.close && $shortme == false){
+                    $('#mymoney').val($('#mymoney').val() -  $prevevent.close);
+                  }
+                  else if($oldclose < $prevevent.close && $shortme == true){
+                    $('#mymoney').val($('#mymoney').val() -  $prevevent.close);
+                  }
+                  else if($oldclose < $prevevent.close && $shortme == false){
+                    $('#mymoney').val($('#mymoney').val() +  $prevevent.close);
+                  }
                 }
               },
 
@@ -295,6 +317,218 @@ button_to "Acknowledged", { :controller => 'messgs', :action => "sendcustom", :i
               }
             });
         });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        $('#buy').on('click',function(){
+              var order = {
+                name: $name,
+                id: $last_id,
+                need: $need,
+              };
+
+                $.ajax({
+                  type: 'POST',
+                  url: '/orders',
+                  data: order,//order,
+                  beforeSend: function (xhr) {
+                    $shortme = false;
+                    $y = true;
+                    while($y){
+                      //if ($containdata.length <= 77 && $containdata.length >= 1 ){
+                      //alert("length: " + $containdata.length + " close: " + $containdata[0].close + " low: " + $prevevent.low + " inlow: " + $interumlow + " high: " + $prevevent.high + " inhigh: " + $interumhigh);
+                      //}
+                      if(0 < $containdata.length) {
+                        //If candidate's close is lower than previous event's low and candidate closes below interum low then
+                        if ($containdata[0].close < $prevevent.low && $containdata[0].close < $interumlow){
+                          //this is a new low
+                          $oldclose = $prevevent.close;
+                          $interumlow = $containdata[0].low;
+                          $interumhigh = $containdata[0].high;
+                          $prevevent = $containdata[0];
+                          $y = false;
+                          xhr.abort();
+                        } //else if candidate's close is higher than previous event's high and candidate closes above interum high then
+                        else if ($containdata[0].close > $prevevent.high && $containdata[0].close > $interumhigh){
+                          //this is a new high
+                          $oldclose = $prevevent.close;
+                          $interumlow = $containdata[0].low;
+                          $interumhigh = $containdata[0].high;
+                          $prevevent = $containdata[0];
+                          $y = false;
+                          xhr.abort();
+                        } //endif
+
+                        //check for interumlow, and interum high
+                        if($containdata[0].low < $interumlow){
+                          $interumlow = $containdata[0].low;
+                        }
+                        if($containdata[0].high > $interumhigh){
+                            $interumhigh = $containdata[0].high;
+                        }
+                        //make temp array
+                        $tempdata.push($containdata.shift());
+                      }
+                      else{
+                        //ajax call to get more.
+                        $y = false;
+                        //alert($containdata.length);
+                        //alert('Getting more data!');
+                      }
+                    }
+                    $extras = ($chart_array.length - $tempdata.length);
+                    if($tempdata.length > 0){
+                      $.each($tempdata, function(i, price) {
+                        if(price) {
+                          $chart_array.push(['day', price.low, price.close, price.open, price.high]);
+                          $last_id = price.id;
+                          $name = price.ticker;
+                        }
+                      });
+                      while($chart_array.length > $chartlength){
+                        tempvar = $chart_array.shift();
+                      }
+                      //$oldchart = $chart_array.slice(0, $extras);
+                      //$newchart = $chart_array.slice($extras, $chart_array.length);
+                      //drawChart($chart_array);
+                      //JORDANS_APP.drawSegment($newchart, 0);
+                      JORDANS_APP.drawSegment($chart_array, $extras);
+                      $tempdata = [];
+                      if($oldclose > $prevevent.close && $shortme == true){
+                        $('#mymoney').val($('#mymoney').val() +  $prevevent.close);
+                      }
+                      else if($oldclose > $prevevent.close && $shortme == false){
+                        $('#mymoney').val($('#mymoney').val() -  $prevevent.close);
+                      }
+                      else if($oldclose < $prevevent.close && $shortme == true){
+                        $('#mymoney').val($('#mymoney').val() -  $prevevent.close);
+                      }
+                      else if($oldclose < $prevevent.close && $shortme == false){
+                        $('#mymoney').val($('#mymoney').val() +  $prevevent.close);
+                      }
+                    }
+                  },
+                  success: function(prices) {
+                    $.each(prices, function(i, price) {
+                      if(price) {
+                        $containdata.push(price); //.slice = takes index 1 to 2 and return it as a new array // or /shift
+                      }
+                    });
+                    //alert($containdata.length);
+                    //alert(order.id);
+
+                    $y = true;
+                    while($y){
+                      if(0 < $containdata.length) {
+
+                        //If candidate's close is lower than previous event's low and candidate closes below interum low then
+                        if ($containdata[0].close < $prevevent.low && $containdata[0].close < $interumlow){
+                          //this is a new low
+                          $oldclose = $prevevent.close;
+                          $interumlow = $containdata[0].low;
+                          $interumhigh = $containdata[0].high;
+                          $prevevent = $containdata[0];
+                          $y = false;
+                        } //else if candidate's close is higher than previous event's high and candidate closes above interum high then
+                        else if ($containdata[0].close > $prevevent.high && $containdata[0].close > $interumhigh){
+                          //this is a new high
+                          $oldclose = $prevevent.close;
+                          $interumlow = $containdata[0].low;
+                          $interumhigh = $containdata[0].high;
+                          $prevevent = $containdata[0];
+                          $y = false;
+                        } //endif
+
+                        //check for interumlow, and interum high
+                        if($containdata[0].low < $interumlow){
+                          $interumlow = $containdata[0].low;
+                        }
+                        if($containdata[0].high > $interumhigh){
+                            $interumhigh = $containdata[0].high;
+                        }
+
+                        //make temp array
+                        $tempdata.push($containdata.shift());
+
+                      }
+                      else{
+                        //ajax call to get more.
+                        $y = false;
+                        alert('you win? No more stock data!');
+                      }
+                    }
+                    $extras = ($chart_array.length - $tempdata.length);
+                    if($tempdata.length > 0){
+                      $.each($tempdata, function(i, price) {
+                        if(price) {
+                          $chart_array.push(['day', price.low, price.close, price.open, price.high]);
+                          $last_id = price.id;
+                          //alert($last_id);
+                          $name = price.ticker;
+                        }
+                      });
+                      while($chart_array.length >$chartlength){
+                        tempvar = $chart_array.shift();
+                      }
+
+                      //drawChart($chart_array);
+                      JORDANS_APP.drawSegment($chart_array, $extras);
+                      $tempdata = [];
+
+                      if($oldclose > $prevevent.close && $shortme == true){
+                        $('#mymoney').val($('#mymoney').val() +  $prevevent.close);
+                      }
+                      else if($oldclose > $prevevent.close && $shortme == false){
+                        $('#mymoney').val($('#mymoney').val() -  $prevevent.close);
+                      }
+                      else if($oldclose < $prevevent.close && $shortme == true){
+                        $('#mymoney').val($('#mymoney').val() -  $prevevent.close);
+                      }
+                      else if($oldclose < $prevevent.close && $shortme == false){
+                        $('#mymoney').val($('#mymoney').val() +  $prevevent.close);
+                      }
+                    }
+                  },
+
+                  error: function() {
+                    alert('error saving order' + order.id);
+                  }
+                });
+            });
+
+
+
       }
 
 
@@ -332,9 +566,9 @@ button_to "Acknowledged", { :controller => 'messgs', :action => "sendcustom", :i
 <p>Name: <input type="text" id="name"></p>
 <p>Drink: <input type="text" id="last_id"></p>
 -->
-<button id="add-order" class="btn btn-default btn-lg btn-primary">Short</button>
+<button id="sell" class="btn btn-default btn-lg btn-primary">Short</button>
 
-<button id="add-order" class="btn btn-default btn-lg btn-primary">Long</button>
+<button id="buy" class="btn btn-default btn-lg btn-primary">Long</button>
 
 
 

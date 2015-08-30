@@ -27,7 +27,7 @@ class ActController < ApplicationController
   def orders
 
     #@price = Price.all
-    @prices = Price.where("id < ?", 40)
+    @prices = Price.where("id < ?", 500)
     #respond_to do |format|
       render json: @prices
     #end
