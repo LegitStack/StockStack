@@ -59,7 +59,7 @@ button_to "Acknowledged", { :controller => 'messgs', :action => "sendcustom", :i
   				drawChart(chartData.slice(0,index));
   				index++;
   				JORDANS_APP.drawSegment(chartData, index);
-  			}, 80);
+  			}, 10);
   		}
   	  };
 
@@ -93,24 +93,17 @@ button_to "Acknowledged", { :controller => 'messgs', :action => "sendcustom", :i
             });
 
             while($x < 50){
-              if(0 <= $containdata.length) {
+              if(0 < $containdata.length) {
                 //make temp array
                 $tempdata.push($containdata.shift());
-                //check for interumlow, and interum high
-                if($tempdata.length > 1){
-                  if($tempdata($tempdata.length-2).low < $interumlow){
-                    $interumlow = $tempdata($tempdata.length-2).low;
-                  }
-                  if($tempdata($tempdata.length-2).high > $interumhigh){
-                      $interumhigh = $tempdata($tempdata.length-2).high;
-                  }
-                }
               }
               $x++;
             }
 
             //once you get to the end, assign that to your prevevent
-            $prevevent = $tempdata($tempdata.length-1);
+            $interumlow = $tempdata[$tempdata.length-1];
+            $interumhigh = $tempdata[$tempdata.length-1];
+            $prevevent = $tempdata[$tempdata.length-1];
 
             $.each($tempdata, function(i, price) {
               if(price) {
@@ -132,71 +125,115 @@ button_to "Acknowledged", { :controller => 'messgs', :action => "sendcustom", :i
             name: $name,
             id: $last_id,
           };
-          $.ajax({
-            type: 'POST',
-            url: '/orders',
-            data: order,//order,
-            success: function(prices) {
-              $.each(prices, function(i, price) {
-                if(price) {
-                  $containdata.push(price); //.slice = takes index 1 to 2 and return it as a new array // or /shift
-                }
-              });
 
-              $y = true;
-              while($y){
-                if(0 <= $containdata.length) {
+          $y = true;
+          while($y){
+            if(0 < $containdata.length) {
 
-                  //If candidate's close is lower than previous event's low and candidate closes below interum low then
-                  if ($conditionaldata[0].close < $prevevent.low && $conditionaldata[0].close < $interumlow){
-                    //this is a new low
-                    $prevevent = $conditionaldata[0];
-                    $y = false;
-                  } //else if candidate's close is higher than previous event's high and candidate closes above interum high then
-                  else if !($conditionaldata[0].close > $prevevent.high && $conditionaldata[0].close > $interumhigh){
-                    //this is a new high
-                    $prevevent = $conditionaldata[0];
-                    $y = false;
-                  } //endif
+              //If candidate's close is lower than previous event's low and candidate closes below interum low then
+              if ($containdata[0].close < $prevevent.low && $containdata[0].close < $interumlow){
+                //this is a new low
+                $interumlow = $containdata[0].low;
+                $interumhigh = $containdata[0].high;
+                $prevevent = $containdata[0];
+                $y = false;
+              } //else if candidate's close is higher than previous event's high and candidate closes above interum high then
+              else if ($containdata[0].close > $prevevent.high && $containdata[0].close > $interumhigh){
+                //this is a new high
+                $interumlow = $containdata[0].low;
+                $interumhigh = $containdata[0].high;
+                $prevevent = $containdata[0];
+                $y = false;
+              } //endif
 
-                  //make temp array
-                  $tempdata.push($containdata.shift());
+              //check for interumlow, and interum high
+              if($containdata[0].low < $interumlow){
+                $interumlow = $containdata[0].low;
+              }
+              if($containdata[0].high > $interumhigh){
+                  $interumhigh = $containdata[0].high;
+              }
 
-                  //check for interumlow, and interum high
-                  if($tempdata.length > 0){
-                    if($tempdata($tempdata.length-1).low < $interumlow){
-                      $interumlow = $tempdata($tempdata.length-1).low;
+              //make temp array
+              $tempdata.push($containdata.shift());
+
+            }
+            else{
+              //ajax call to get more.
+              $y = false;
+
+
+              $.ajax({
+                type: 'POST',
+                url: '/orders',
+                data: order,//order,
+                success: function(prices) {
+                  $.each(prices, function(i, price) {
+                    if(price) {
+                      $containdata.push(price); //.slice = takes index 1 to 2 and return it as a new array // or /shift
                     }
-                    if($tempdata($tempdata.length-1).high > $interumhigh){
-                        $interumhigh = $tempdata($tempdata.length-1).high;
+                  });
+
+                  $y = true;
+                  while($y){
+                    if(0 < $containdata.length) {
+
+                      //If candidate's close is lower than previous event's low and candidate closes below interum low then
+                      if ($containdata[0].close < $prevevent.low && $containdata[0].close < $interumlow){
+                        //this is a new low
+                        $interumlow = $containdata[0].low;
+                        $interumhigh = $containdata[0].high;
+                        $prevevent = $containdata[0];
+                        $y = false;
+                      } //else if candidate's close is higher than previous event's high and candidate closes above interum high then
+                      else if ($containdata[0].close > $prevevent.high && $containdata[0].close > $interumhigh){
+                        //this is a new high
+                        $interumlow = $containdata[0].low;
+                        $interumhigh = $containdata[0].high;
+                        $prevevent = $containdata[0];
+                        $y = false;
+                      } //endif
+
+                      //check for interumlow, and interum high
+                      if($containdata[0].low < $interumlow){
+                        $interumlow = $containdata[0].low;
+                      }
+                      if($containdata[0].high > $interumhigh){
+                          $interumhigh = $containdata[0].high;
+                      }
+
+                      //make temp array
+                      $tempdata.push($containdata.shift());
+
+                    }
+                    else{
+                      //ajax call to get more.
+                      $y = false;
+                      alert('you win? No more stock data!');
                     }
                   }
 
-                }
-                else(
-                  //ajax call to get more.
-                  $y = false;
-                  alert('you win? No more stock data!');
-                )
-              }
-
-              $.each($tempdata, function(i, price) {
-                if(price) {
-                  $chart_array.push(['day', price.low, price.close, price.open, price.high]);
-                  $last_id = price.id;
-                  $name = price.ticker;
+                  $last_id = prices.id;
+                  $name = prices.ticker;
+                },
+                error: function() {
+                  alert('error saving order' + order.id);
                 }
               });
 
-              $last_id = prices.id;
-              $name = prices.ticker;
+            }//endif
+          }//end while
 
-              drawChart($chart_array);
-            },
-            error: function() {
-              alert('error saving order' + order.id);
+          $.each($tempdata, function(i, price) {
+            if(price) {
+              $chart_array.push(['day', price.low, price.close, price.open, price.high]);
+              $last_id = price.id;
+              $name = price.ticker;
             }
           });
+
+          drawChart($chart_array);
+
         });
       }
 
