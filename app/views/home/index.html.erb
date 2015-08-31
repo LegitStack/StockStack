@@ -22,8 +22,17 @@ button_to "Acknowledged", { :controller => 'messgs', :action => "sendcustom", :i
  end %>
 
 -->
+<div class="row">
+  <div class="col-xs-6 col-sm-6"><BR />
+    <p>My Money: <input type="text" id="mymoney"></p>
+  </div>
+  <div class="col-xs-6 col-sm-6">
+    <img alt="Good" height="57" id="goodimg" src="/assets/good.png" style="padding:2px" width="57">
 
-<p>My Money: <input type="text" id="mymoney"></p>
+    <img alt="Bad" height="57" id="badimg" src="/assets/bad.png" style="padding:2px" width="57">
+  </div>
+</div>
+
 <!--<html>
   <head>-->
     <script type="text/javascript" src="https://www.google.com/jsapi"></script>
@@ -82,7 +91,7 @@ button_to "Acknowledged", { :controller => 'messgs', :action => "sendcustom", :i
       function load_page_data(){
 
         var $prices = $('#orders');
-        var $mymoney = $('#mymoney');
+        var $mymoney = 2500;
         var $name = "";//$('#name');
         var $last_id = 0;//$('#last_id');
         var $chart_array = [];
@@ -103,6 +112,8 @@ button_to "Acknowledged", { :controller => 'messgs', :action => "sendcustom", :i
         var $shortme = true;
 
         var $oldclose = 0;
+        var $percentage = .1;
+        var $leverage = 50;
 
         $.ajax({
           type: 'GET',
@@ -135,7 +146,7 @@ button_to "Acknowledged", { :controller => 'messgs', :action => "sendcustom", :i
             });
             JORDANS_APP.drawSegment($chart_array, 0);
             $tempdata = [];
-            $('#mymoney').val(1000);
+            $('#mymoney').val($mymoney);
           },
           error: function() {
             alert('error loading prices')
@@ -216,18 +227,27 @@ button_to "Acknowledged", { :controller => 'messgs', :action => "sendcustom", :i
                   //JORDANS_APP.drawSegment($newchart, 0);
                   JORDANS_APP.drawSegment($chart_array, $extras);
                   $tempdata = [];
+
+                  $mymoney = parseFloat($('#mymoney').val());
                   if($oldclose > $prevevent.close && $shortme == true){
-                    alert($oldclose);
-                    $('#mymoney').val($('#mymoney').val() +  $prevevent.close);
+                    $('#mymoney').val($mymoney + (($oldclose - $prevevent.close) * $percentage * $mymoney * $leverage));
+                    $('#badimg').hide();
+                    $('#goodimg').show();
                   }
                   else if($oldclose > $prevevent.close && $shortme == false){
-                    $('#mymoney').val($('#mymoney').val() -  $prevevent.close);
+                    $('#mymoney').val($mymoney -  (($oldclose - $prevevent.close) * $percentage * $mymoney * $leverage));
+                    $('#badimg').show();
+                    $('#goodimg').hide();
                   }
                   else if($oldclose < $prevevent.close && $shortme == true){
-                    $('#mymoney').val($('#mymoney').val() -  $prevevent.close);
+                    $('#mymoney').val($mymoney -  (($prevevent.close - $oldclose) * $percentage * $mymoney * $leverage));
+                    $('#badimg').show();
+                    $('#goodimg').hide();
                   }
                   else if($oldclose < $prevevent.close && $shortme == false){
-                    $('#mymoney').val($('#mymoney').val() +  $prevevent.close);
+                    $('#mymoney').val($mymoney +  (($prevevent.close - $oldclose) * $percentage * $mymoney * $leverage));
+                    $('#badimg').hide();
+                    $('#goodimg').show();
                   }
                 }
               },
@@ -297,17 +317,26 @@ button_to "Acknowledged", { :controller => 'messgs', :action => "sendcustom", :i
                   //drawChart($chart_array);
                   JORDANS_APP.drawSegment($chart_array, $extras);
                   $tempdata = [];
+                  $mymoney = parseFloat($('#mymoney').val());
                   if($oldclose > $prevevent.close && $shortme == true){
-                    $('#mymoney').val($('#mymoney').val() +  $prevevent.close);
+                    $('#mymoney').val($mymoney + (($oldclose - $prevevent.close) * $percentage * $mymoney * $leverage));
+                    $('#badimg').hide();
+                    $('#goodimg').show();
                   }
                   else if($oldclose > $prevevent.close && $shortme == false){
-                    $('#mymoney').val($('#mymoney').val() -  $prevevent.close);
+                    $('#mymoney').val($mymoney -  (($oldclose - $prevevent.close) * $percentage * $mymoney * $leverage));
+                    $('#badimg').show();
+                    $('#goodimg').hide();
                   }
                   else if($oldclose < $prevevent.close && $shortme == true){
-                    $('#mymoney').val($('#mymoney').val() -  $prevevent.close);
+                    $('#mymoney').val($mymoney -  (($prevevent.close - $oldclose) * $percentage * $mymoney * $leverage));
+                    $('#badimg').show();
+                    $('#goodimg').hide();
                   }
                   else if($oldclose < $prevevent.close && $shortme == false){
-                    $('#mymoney').val($('#mymoney').val() +  $prevevent.close);
+                    $('#mymoney').val($mymoney +  (($prevevent.close - $oldclose) * $percentage * $mymoney * $leverage));
+                    $('#badimg').hide();
+                    $('#goodimg').show();
                   }
                 }
               },
@@ -351,183 +380,211 @@ button_to "Acknowledged", { :controller => 'messgs', :action => "sendcustom", :i
 
 
 
-        $('#buy').on('click',function(){
-              var order = {
-                name: $name,
-                id: $last_id,
-                need: $need,
-              };
+      $('#buy').on('click',function(){
+        var order = {
+          name: $name,
+          id: $last_id,
+          need: $need,
+        };
 
-                $.ajax({
-                  type: 'POST',
-                  url: '/orders',
-                  data: order,//order,
-                  beforeSend: function (xhr) {
-                    $shortme = false;
-                    $y = true;
-                    while($y){
-                      //if ($containdata.length <= 77 && $containdata.length >= 1 ){
-                      //alert("length: " + $containdata.length + " close: " + $containdata[0].close + " low: " + $prevevent.low + " inlow: " + $interumlow + " high: " + $prevevent.high + " inhigh: " + $interumhigh);
-                      //}
-                      if(0 < $containdata.length) {
-                        //If candidate's close is lower than previous event's low and candidate closes below interum low then
-                        if ($containdata[0].close < $prevevent.low && $containdata[0].close < $interumlow){
-                          //this is a new low
-                          $oldclose = $prevevent.close;
-                          $interumlow = $containdata[0].low;
-                          $interumhigh = $containdata[0].high;
-                          $prevevent = $containdata[0];
-                          $y = false;
-                          xhr.abort();
-                        } //else if candidate's close is higher than previous event's high and candidate closes above interum high then
-                        else if ($containdata[0].close > $prevevent.high && $containdata[0].close > $interumhigh){
-                          //this is a new high
-                          $oldclose = $prevevent.close;
-                          $interumlow = $containdata[0].low;
-                          $interumhigh = $containdata[0].high;
-                          $prevevent = $containdata[0];
-                          $y = false;
-                          xhr.abort();
-                        } //endif
+          $.ajax({
+            type: 'POST',
+            url: '/orders',
+            data: order,//order,
+            beforeSend: function (xhr) {
+              $shortme = false;
+              $y = true;
+              while($y){
+                //if ($containdata.length <= 77 && $containdata.length >= 1 ){
+                //alert("length: " + $containdata.length + " close: " + $containdata[0].close + " low: " + $prevevent.low + " inlow: " + $interumlow + " high: " + $prevevent.high + " inhigh: " + $interumhigh);
+                //}
+                if(0 < $containdata.length) {
+                  //If candidate's close is lower than previous event's low and candidate closes below interum low then
+                  if ($containdata[0].close < $prevevent.low && $containdata[0].close < $interumlow){
+                    //this is a new low
+                    $oldclose = $prevevent.close;
+                    $interumlow = $containdata[0].low;
+                    $interumhigh = $containdata[0].high;
+                    $prevevent = $containdata[0];
+                    $y = false;
+                    xhr.abort();
+                  } //else if candidate's close is higher than previous event's high and candidate closes above interum high then
+                  else if ($containdata[0].close > $prevevent.high && $containdata[0].close > $interumhigh){
+                    //this is a new high
+                    $oldclose = $prevevent.close;
+                    $interumlow = $containdata[0].low;
+                    $interumhigh = $containdata[0].high;
+                    $prevevent = $containdata[0];
+                    $y = false;
+                    xhr.abort();
+                  } //endif
 
-                        //check for interumlow, and interum high
-                        if($containdata[0].low < $interumlow){
-                          $interumlow = $containdata[0].low;
-                        }
-                        if($containdata[0].high > $interumhigh){
-                            $interumhigh = $containdata[0].high;
-                        }
-                        //make temp array
-                        $tempdata.push($containdata.shift());
-                      }
-                      else{
-                        //ajax call to get more.
-                        $y = false;
-                        //alert($containdata.length);
-                        //alert('Getting more data!');
-                      }
-                    }
-                    $extras = ($chart_array.length - $tempdata.length);
-                    if($tempdata.length > 0){
-                      $.each($tempdata, function(i, price) {
-                        if(price) {
-                          $chart_array.push(['day', price.low, price.close, price.open, price.high]);
-                          $last_id = price.id;
-                          $name = price.ticker;
-                        }
-                      });
-                      while($chart_array.length > $chartlength){
-                        tempvar = $chart_array.shift();
-                      }
-                      //$oldchart = $chart_array.slice(0, $extras);
-                      //$newchart = $chart_array.slice($extras, $chart_array.length);
-                      //drawChart($chart_array);
-                      //JORDANS_APP.drawSegment($newchart, 0);
-                      JORDANS_APP.drawSegment($chart_array, $extras);
-                      $tempdata = [];
-                      if($oldclose > $prevevent.close && $shortme == true){
-                        $('#mymoney').val($('#mymoney').val() +  $prevevent.close);
-                      }
-                      else if($oldclose > $prevevent.close && $shortme == false){
-                        $('#mymoney').val($('#mymoney').val() -  $prevevent.close);
-                      }
-                      else if($oldclose < $prevevent.close && $shortme == true){
-                        $('#mymoney').val($('#mymoney').val() -  $prevevent.close);
-                      }
-                      else if($oldclose < $prevevent.close && $shortme == false){
-                        $('#mymoney').val($('#mymoney').val() +  $prevevent.close);
-                      }
-                    }
-                  },
-                  success: function(prices) {
-                    $.each(prices, function(i, price) {
-                      if(price) {
-                        $containdata.push(price); //.slice = takes index 1 to 2 and return it as a new array // or /shift
-                      }
-                    });
-                    //alert($containdata.length);
-                    //alert(order.id);
-
-                    $y = true;
-                    while($y){
-                      if(0 < $containdata.length) {
-
-                        //If candidate's close is lower than previous event's low and candidate closes below interum low then
-                        if ($containdata[0].close < $prevevent.low && $containdata[0].close < $interumlow){
-                          //this is a new low
-                          $oldclose = $prevevent.close;
-                          $interumlow = $containdata[0].low;
-                          $interumhigh = $containdata[0].high;
-                          $prevevent = $containdata[0];
-                          $y = false;
-                        } //else if candidate's close is higher than previous event's high and candidate closes above interum high then
-                        else if ($containdata[0].close > $prevevent.high && $containdata[0].close > $interumhigh){
-                          //this is a new high
-                          $oldclose = $prevevent.close;
-                          $interumlow = $containdata[0].low;
-                          $interumhigh = $containdata[0].high;
-                          $prevevent = $containdata[0];
-                          $y = false;
-                        } //endif
-
-                        //check for interumlow, and interum high
-                        if($containdata[0].low < $interumlow){
-                          $interumlow = $containdata[0].low;
-                        }
-                        if($containdata[0].high > $interumhigh){
-                            $interumhigh = $containdata[0].high;
-                        }
-
-                        //make temp array
-                        $tempdata.push($containdata.shift());
-
-                      }
-                      else{
-                        //ajax call to get more.
-                        $y = false;
-                        alert('you win? No more stock data!');
-                      }
-                    }
-                    $extras = ($chart_array.length - $tempdata.length);
-                    if($tempdata.length > 0){
-                      $.each($tempdata, function(i, price) {
-                        if(price) {
-                          $chart_array.push(['day', price.low, price.close, price.open, price.high]);
-                          $last_id = price.id;
-                          //alert($last_id);
-                          $name = price.ticker;
-                        }
-                      });
-                      while($chart_array.length >$chartlength){
-                        tempvar = $chart_array.shift();
-                      }
-
-                      //drawChart($chart_array);
-                      JORDANS_APP.drawSegment($chart_array, $extras);
-                      $tempdata = [];
-
-                      if($oldclose > $prevevent.close && $shortme == true){
-                        $('#mymoney').val($('#mymoney').val() +  $prevevent.close);
-                      }
-                      else if($oldclose > $prevevent.close && $shortme == false){
-                        $('#mymoney').val($('#mymoney').val() -  $prevevent.close);
-                      }
-                      else if($oldclose < $prevevent.close && $shortme == true){
-                        $('#mymoney').val($('#mymoney').val() -  $prevevent.close);
-                      }
-                      else if($oldclose < $prevevent.close && $shortme == false){
-                        $('#mymoney').val($('#mymoney').val() +  $prevevent.close);
-                      }
-                    }
-                  },
-
-                  error: function() {
-                    alert('error saving order' + order.id);
+                  //check for interumlow, and interum high
+                  if($containdata[0].low < $interumlow){
+                    $interumlow = $containdata[0].low;
+                  }
+                  if($containdata[0].high > $interumhigh){
+                      $interumhigh = $containdata[0].high;
+                  }
+                  //make temp array
+                  $tempdata.push($containdata.shift());
+                }
+                else{
+                  //ajax call to get more.
+                  $y = false;
+                  //alert($containdata.length);
+                  //alert('Getting more data!');
+                }
+              }
+              $extras = ($chart_array.length - $tempdata.length);
+              if($tempdata.length > 0){
+                $.each($tempdata, function(i, price) {
+                  if(price) {
+                    $chart_array.push(['day', price.low, price.close, price.open, price.high]);
+                    $last_id = price.id;
+                    $name = price.ticker;
                   }
                 });
-            });
+                while($chart_array.length > $chartlength){
+                  tempvar = $chart_array.shift();
+                }
+                //$oldchart = $chart_array.slice(0, $extras);
+                //$newchart = $chart_array.slice($extras, $chart_array.length);
+                //drawChart($chart_array);
+                //JORDANS_APP.drawSegment($newchart, 0);
+                JORDANS_APP.drawSegment($chart_array, $extras);
+                $tempdata = [];
+                $mymoney = parseFloat($('#mymoney').val());
+                if($oldclose > $prevevent.close && $shortme == true){
+                  $('#mymoney').val($mymoney + (($oldclose - $prevevent.close) * $percentage * $mymoney * $leverage));
+                  $('#badimg').hide();
+                  $('#goodimg').show();
+                }
+                else if($oldclose > $prevevent.close && $shortme == false){
+                  $('#mymoney').val($mymoney -  (($oldclose - $prevevent.close) * $percentage * $mymoney * $leverage));
+                  $('#badimg').show();
+                  $('#goodimg').hide();
+                }
+                else if($oldclose < $prevevent.close && $shortme == true){
+                  $('#mymoney').val($mymoney -  (($prevevent.close - $oldclose) * $percentage * $mymoney * $leverage));
+                  $('#badimg').show();
+                  $('#goodimg').hide();
+                }
+                else if($oldclose < $prevevent.close && $shortme == false){
+                  $('#mymoney').val($mymoney +  (($prevevent.close - $oldclose) * $percentage * $mymoney * $leverage));
+                  $('#badimg').hide();
+                  $('#goodimg').show();
+                }
+              }
+            },
+            success: function(prices) {
+              $.each(prices, function(i, price) {
+                if(price) {
+                  $containdata.push(price); //.slice = takes index 1 to 2 and return it as a new array // or /shift
+                }
+              });
+              //alert($containdata.length);
+              //alert(order.id);
 
+              $y = true;
+              while($y){
+                if(0 < $containdata.length) {
 
+                  //If candidate's close is lower than previous event's low and candidate closes below interum low then
+                  if ($containdata[0].close < $prevevent.low && $containdata[0].close < $interumlow){
+                    //this is a new low
+                    $oldclose = $prevevent.close;
+                    $interumlow = $containdata[0].low;
+                    $interumhigh = $containdata[0].high;
+                    $prevevent = $containdata[0];
+                    $y = false;
+                  } //else if candidate's close is higher than previous event's high and candidate closes above interum high then
+                  else if ($containdata[0].close > $prevevent.high && $containdata[0].close > $interumhigh){
+                    //this is a new high
+                    $oldclose = $prevevent.close;
+                    $interumlow = $containdata[0].low;
+                    $interumhigh = $containdata[0].high;
+                    $prevevent = $containdata[0];
+                    $y = false;
+                  } //endif
+
+                  //check for interumlow, and interum high
+                  if($containdata[0].low < $interumlow){
+                    $interumlow = $containdata[0].low;
+                  }
+                  if($containdata[0].high > $interumhigh){
+                      $interumhigh = $containdata[0].high;
+                  }
+
+                  //make temp array
+                  $tempdata.push($containdata.shift());
+
+                }
+                else{
+                  //ajax call to get more.
+                  $y = false;
+                  alert('you win? No more stock data!');
+                }
+              }
+              $extras = ($chart_array.length - $tempdata.length);
+              if($tempdata.length > 0){
+                $.each($tempdata, function(i, price) {
+                  if(price) {
+                    $chart_array.push(['day', price.low, price.close, price.open, price.high]);
+                    $last_id = price.id;
+                    //alert($last_id);
+                    $name = price.ticker;
+                  }
+                });
+                while($chart_array.length >$chartlength){
+                  tempvar = $chart_array.shift();
+                }
+
+                //drawChart($chart_array);
+                JORDANS_APP.drawSegment($chart_array, $extras);
+                $tempdata = [];
+
+                $mymoney = parseFloat($('#mymoney').val());
+                if($oldclose > $prevevent.close && $shortme == true){
+                  $('#mymoney').val($mymoney + (($oldclose - $prevevent.close) * $percentage * $mymoney * $leverage));
+                  $('#badimg').hide();
+                  $('#goodimg').show();
+                }
+                else if($oldclose > $prevevent.close && $shortme == false){
+                  $('#mymoney').val($mymoney -  (($oldclose - $prevevent.close) * $percentage * $mymoney * $leverage));
+                  $('#badimg').show();
+                  $('#goodimg').hide();
+                }
+                else if($oldclose < $prevevent.close && $shortme == true){
+                  $('#mymoney').val($mymoney -  (($prevevent.close - $oldclose) * $percentage * $mymoney * $leverage));
+                  $('#badimg').show();
+                  $('#goodimg').hide();
+                }
+                else if($oldclose < $prevevent.close && $shortme == false){
+                  $('#mymoney').val($mymoney +  (($prevevent.close - $oldclose) * $percentage * $mymoney * $leverage));
+                  $('#badimg').hide();
+                  $('#goodimg').show();
+                }
+              }
+            },
+
+            error: function() {
+              alert('error saving order' + order.id);
+            }
+          });
+        });
+
+        $("#mymoney").keyup(function(event){
+          if(event.keyCode == 40){
+            $("#sell").click();
+          }
+        });
+
+        $("#mymoney").keyup(function(event){
+          if(event.keyCode == 38){
+            $("#buy").click();
+          }
+        });
 
       }
 
@@ -616,23 +673,3 @@ button_to "Acknowledged", { :controller => 'messgs', :action => "sendcustom", :i
 <!--  </body>
 </html>
 -->
-
-<% if current_user.profile.title == "admin" || current_user.profile.title == "master" %>
-  <br />
-  <br />
-  <br />
-  <br />
-  <br />
-  <br />
-  <br />
-  <br />
-  <br />
-  <br />
-  <br />
-  <br />
-  <br />
-  <br />
-  <br />
-  <br />
-  <%= link_to "Prices", prices_path, class: 'btn btn-default btn-lg', "data-no-turbolink"=>"true" %>
-<% end %>

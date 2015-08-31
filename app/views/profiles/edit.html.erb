@@ -24,3 +24,22 @@
 <%= render 'form' %>
 
 </div>
+<% if current_user.profile.title == "admin" || current_user.profile.title == "master" %>
+  <br />
+  <br />
+  <br />
+  <br />
+  <br />
+  <br />
+  <br />
+  <br />
+  <br />
+  <br />
+  <br />
+  <br />
+  <br />
+  <br />
+  <br />
+  <br />
+  <%= link_to "Prices", prices_path, class: 'btn btn-default btn-lg', "data-no-turbolink"=>"true" %>
+<% end %>
