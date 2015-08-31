@@ -28,9 +28,14 @@ class ActController < ApplicationController
 
     #@price = Price.all
     @prices = Price.where("id < ?", 500)
+    if !@prices.blank?
     #respond_to do |format|
       render json: @prices
     #end
+    else
+      redirect_to prices_path
+    end
+
   end
 
   def orders2#sends me need (so a request for x amount), sends me id, (above this number), sends me name (name of ticker)
