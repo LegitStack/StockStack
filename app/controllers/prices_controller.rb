@@ -13,12 +13,8 @@ class PricesController < ApplicationController
   end
 
   def import
-    if current_user.profile.title == "admin" or current_user.profile.title == "master"
       Price.import(params[:file])
       redirect_to profiles_path, notice: "Prices Imported"
-    else
-      redirect_to profiles_path, notice: "No Prices Imported; You are not Admin."
-    end
   end
 
   # GET /prices/1
