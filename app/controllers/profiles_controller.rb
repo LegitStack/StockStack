@@ -16,12 +16,8 @@ class ProfilesController < ApplicationController
   end
 
   def import
-    if current_user.profile.title == "admin" or current_user.profile.title == "master"
       Profile.import(params[:file])
       redirect_to profiles_path, notice: "Records Imported"
-    else
-      redirect_to profiles_path, notice: "No Records Imported; You are not Admin."
-    end
   end
 
   # GET /profiles/1
